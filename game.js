@@ -1,33 +1,15 @@
 var game;
 var gameOptions = {
     tileSize: 200,
-    colors: {
-        0: 0xFFFFFF,
-        2: 0xFFFFFF,
-        4: 0xFFEEEE,
-        8: 0xFFDDDD,
-        16: 0xFFCCCC,
-        32: 0xFFBBBB,
-        64: 0xFFAAAA,
-        128: 0xFF9999,
-        256: 0xFF8888,
-        512: 0xFF7777,
-        1024: 0xFF6666,
-        2048: 0xFF5555,
-        4096: 0xFF4444,
-        8192: 0xFF3333,
-        16384: 0xFF2222,
-        32768: 0xFF1111,
-        65536: 0xFF0000
-    },
-    tweenSpeed: 50
+    tweenSpeed: 50,
+    tileSpacing: 20
 }
 window.onload = function() {
     var gameConfig = {
-       type: Phaser.WEBGL,
-       width: gameOptions.tileSize * 4,
-       height: gameOptions.tileSize * 4,
-       backgroundColor: 0x444444,
+       type: Phaser.CANVAS,
+       width: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
+       height: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
+       backgroundColor: 0xecf0f1,
        scene: [playGame]
    };
     game = new Phaser.Game(gameConfig);
@@ -43,6 +25,10 @@ var playGame = new Phaser.Class({
     },
     preload: function(){
         this.load.image("tile", "tile.png");
+        this.load.spritesheet("tiles", "assets/sprites/tiles.png", {
+            frameWidth: gameOptions.tileSize,
+            frameHeight: gameOptions.tileSize
+        });
     },
     create: function(){
         this.fieldArray = [];
@@ -50,24 +36,13 @@ var playGame = new Phaser.Class({
         for(var i = 0; i < 4; i++){
             this.fieldArray[i] = [];
             for(var j = 0; j < 4; j++){
-                var two = this.add.sprite(j * gameOptions.tileSize + gameOptions.tileSize / 2, i * gameOptions.tileSize  + gameOptions.tileSize / 2, "tile");
+                var two = this.add.sprite(this.tileDestination(j), this.tileDestination(i), "tiles");
                 two.alpha = 0;
                 two.visible = 0;
                 this.fieldGroup.add(two);
-                var text = this.add.text(j * gameOptions.tileSize + gameOptions.tileSize / 2, i * gameOptions.tileSize  + gameOptions.tileSize / 2, "2", {
-                    font: "bold 64px Arial",
-                    align: "center",
-                    color: "black",
-                    align: "center"
-                });
-                text.setOrigin(0.5);
-                text.alpha = 0;
-                text.visible = 0;
-                this.fieldGroup.add(text);
                 this.fieldArray[i][j] = {
                     tileValue: 0,
                     tileSprite: two,
-                    tileText: text,
                     canUpgrade: true
                 }
             }
@@ -76,6 +51,40 @@ var playGame = new Phaser.Class({
         this.canMove = false;
         this.addTwo();
         this.addTwo();
+        this.input.on("pointerup", this.endSwipe, this);
+    },
+    endSwipe: function(e){
+        var swipeTime = e.upTime - e.downTime;
+        var swipe = new Phaser.Geom.Point(e.upX - e.downX, e.upY - e.downY);
+        var swipeMagnitude = Phaser.Geom.Point.GetMagnitude(swipe);
+        var swipeNormal = new Phaser.Geom.Point(swipe.x / swipeMagnitude, swipe.y / swipeMagnitude);
+        if(swipeMagnitude > 20 && swipeTime < 1000 && (Math.abs(swipeNormal.y) > 0.8 || Math.abs(swipeNormal.x) > 0.8)){
+            var children = this.fieldGroup.getChildren();
+            if(swipeNormal.x > 0.8) {
+                for (var i = 0; i < children.length; i++){
+                    children[i].depth = game.config.width - children[i].x;
+                }
+                this.handleMove(0, 1);
+            }
+            if(swipeNormal.x < -0.8) {
+                for (var i = 0; i < children.length; i++){
+                    children[i].depth = children[i].x;
+                }
+                this.handleMove(0, -1);
+            }
+            if(swipeNormal.y > 0.8) {
+                for (var i = 0; i < children.length; i++){
+                    children[i].depth = game.config.height - children[i].y;
+                }
+                this.handleMove(1, 0);
+            }
+            if(swipeNormal.y < -0.8) {
+                for (var i = 0; i < children.length; i++){
+                    children[i].depth = children[i].y;
+                }
+                this.handleMove(-1, 0);
+            }
+        }
     },
     addTwo: function(){
         var emptyTiles = [];
@@ -90,12 +99,11 @@ var playGame = new Phaser.Class({
             }
         }
         var chosenTile = Phaser.Utils.Array.GetRandomElement(emptyTiles);
-        this.fieldArray[chosenTile.row][chosenTile.col].tileValue = 2;
+        this.fieldArray[chosenTile.row][chosenTile.col].tileValue = 1;
         this.fieldArray[chosenTile.row][chosenTile.col].tileSprite.visible = true;
-        this.fieldArray[chosenTile.row][chosenTile.col].tileText.setText("2");
-        this.fieldArray[chosenTile.row][chosenTile.col].tileText.visible = true;
+        this.fieldArray[chosenTile.row][chosenTile.col].tileSprite.setFrame(0);
         this.tweens.add({
-            targets: [this.fieldArray[chosenTile.row][chosenTile.col].tileSprite, this.fieldArray[chosenTile.row][chosenTile.col].tileText],
+            targets: [this.fieldArray[chosenTile.row][chosenTile.col].tileSprite],
             alpha: 1,
             duration: gameOptions.tweenSpeed,
             onComplete: function(tween){
@@ -108,24 +116,28 @@ var playGame = new Phaser.Class({
             var children = this.fieldGroup.getChildren();
             switch(e.code){
                 case "KeyA":
+                case "ArrowLeft":
                     for (var i = 0; i < children.length; i++){
                         children[i].depth = children[i].x;
                     }
                     this.handleMove(0, -1);
                     break;
                 case "KeyD":
+                case "ArrowRight":
                     for (var i = 0; i < children.length; i++){
                         children[i].depth = game.config.width - children[i].x;
                     }
                     this.handleMove(0, 1);
                     break;
                 case "KeyW":
+                case "ArrowUp":
                     for (var i = 0; i < children.length; i++){
                         children[i].depth = children[i].y;
                     }
                     this.handleMove(-1, 0);
                     break;
                 case "KeyS":
+                case "ArrowDown":
                     for (var i = 0; i < children.length; i++){
                         children[i].depth = game.config.height - children[i].y;
                     }
@@ -151,7 +163,7 @@ var playGame = new Phaser.Class({
                         rowSteps += deltaRow;
                     }
                     if(this.isInsideBoard(rowToWatch + rowSteps, colToWatch + colSteps) && (this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue == tileValue) && this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].canUpgrade && this.fieldArray[rowToWatch][colToWatch].canUpgrade){
-                        this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue = tileValue * 2;
+                        this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue ++;
                         this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].canUpgrade = false;
                         this.fieldArray[rowToWatch][colToWatch].tileValue = 0;
                         this.moveTile(this.fieldArray[rowToWatch][colToWatch], rowToWatch + rowSteps, colToWatch + colSteps, Math.abs(rowSteps + colSteps), true);
@@ -177,9 +189,9 @@ var playGame = new Phaser.Class({
     moveTile: function(tile, row, col, distance, changeNumber){
         this.movingTiles ++;
         this.tweens.add({
-            targets: [tile.tileSprite, tile.tileText],
-            x: col * gameOptions.tileSize + gameOptions.tileSize / 2,
-            y: row * gameOptions.tileSize + gameOptions.tileSize / 2,
+            targets: [tile.tileSprite],
+            x: this.tileDestination(col),
+            y: this.tileDestination(row),
             duration: gameOptions.tweenSpeed * distance,
             onComplete: function(tween){
                 tween.parent.scene.movingTiles --;
@@ -195,8 +207,7 @@ var playGame = new Phaser.Class({
     },
     transformTile: function(tile, row, col){
         this.movingTiles ++;
-        tile.tileText.setText(this.fieldArray[row][col].tileValue.toString());
-        tile.tileSprite.setTint(gameOptions.colors[this.fieldArray[row][col].tileValue]);
+        tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({
             targets: [tile.tileSprite],
             scaleX: 1.1,
@@ -217,30 +228,25 @@ var playGame = new Phaser.Class({
         for(var i = 0; i < 4; i++){
             for(var j = 0; j < 4; j++){
                 this.fieldArray[i][j].canUpgrade = true;
-                this.fieldArray[i][j].tileSprite.x = j * gameOptions.tileSize + gameOptions.tileSize / 2;
-                this.fieldArray[i][j].tileSprite.y = i * gameOptions.tileSize + gameOptions.tileSize / 2;
-                this.fieldArray[i][j].tileText.x = j * gameOptions.tileSize + gameOptions.tileSize / 2;
-                this.fieldArray[i][j].tileText.y = i * gameOptions.tileSize + gameOptions.tileSize / 2;
+                this.fieldArray[i][j].tileSprite.x = this.tileDestination(j);
+                this.fieldArray[i][j].tileSprite.y = this.tileDestination(i);
                 if(this.fieldArray[i][j].tileValue > 0){
                     this.fieldArray[i][j].tileSprite.alpha = 1;
                     this.fieldArray[i][j].tileSprite.visible = true;
-                    this.fieldArray[i][j].tileText.alpha = 1;
-                    this.fieldArray[i][j].tileText.visible = true;
-                    this.fieldArray[i][j].tileText.setText(this.fieldArray[i][j].tileValue.toString());
+                    this.fieldArray[i][j].tileSprite.setFrame(this.fieldArray[i][j].tileValue - 1);
                 }
                 else{
-                    this.fieldArray[i][j].tileValue = 0;
                     this.fieldArray[i][j].tileSprite.alpha = 0;
                     this.fieldArray[i][j].tileSprite.visible = false;
-                    this.fieldArray[i][j].tileText.alpha = 0;
-                    this.fieldArray[i][j].tileText.visible = false;
                 }
-                this.fieldArray[i][j].tileSprite.setTint(gameOptions.colors[this.fieldArray[i][j].tileValue]);
             }
         }
     },
     isInsideBoard: function(row, col){
         return (row >= 0) && (col >= 0) && (row < 4) && (col < 4);
+    },
+    tileDestination: function(pos){
+        return pos * (gameOptions.tileSize + gameOptions.tileSpacing) + gameOptions.tileSize / 2 + gameOptions.tileSpacing
     }
 });
 function resize() {

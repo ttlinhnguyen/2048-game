@@ -17,6 +17,7 @@ window.onload = function() {
     resize();
     window.addEventListener("resize", resize, false);
 }
+
 var playGame = new Phaser.Class({
     Extends: Phaser.Scene,
     initialize:
@@ -24,13 +25,16 @@ var playGame = new Phaser.Class({
         Phaser.Scene.call(this, {key: "PlayGame"});
     },
     preload: function(){
-        this.load.image("tile", "tile.png");
+        // this.load.image("tile", "tile.png");
         this.load.spritesheet("tiles", "assets/sprites/tiles.png", {
             frameWidth: gameOptions.tileSize,
             frameHeight: gameOptions.tileSize
         });
     },
     create: function(){
+        this.score = 0
+        this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {color: '#000', fontSize: '20px'})
+        this.result = this.add.text(200, 10, 'true', {color: '#000'})
         this.fieldArray = [];
         this.fieldGroup = this.add.group();
         for(var i = 0; i < 4; i++){
@@ -47,45 +51,37 @@ var playGame = new Phaser.Class({
                 }
             }
         }
+        // for keyboard use
         this.input.keyboard.on("keydown", this.handleKey, this);
+        // for touch use
+        this.input.on("pointerup", this.endSwipe, this);
+
         this.canMove = false;
         this.addTwo();
         this.addTwo();
-        this.input.on("pointerup", this.endSwipe, this);
     },
+
     endSwipe: function(e){
         var swipeTime = e.upTime - e.downTime;
         var swipe = new Phaser.Geom.Point(e.upX - e.downX, e.upY - e.downY);
         var swipeMagnitude = Phaser.Geom.Point.GetMagnitude(swipe);
         var swipeNormal = new Phaser.Geom.Point(swipe.x / swipeMagnitude, swipe.y / swipeMagnitude);
         if(swipeMagnitude > 20 && swipeTime < 1000 && (Math.abs(swipeNormal.y) > 0.8 || Math.abs(swipeNormal.x) > 0.8)){
-            var children = this.fieldGroup.getChildren();
             if(swipeNormal.x > 0.8) {
-                for (var i = 0; i < children.length; i++){
-                    children[i].depth = game.config.width - children[i].x;
-                }
                 this.handleMove(0, 1);
             }
             if(swipeNormal.x < -0.8) {
-                for (var i = 0; i < children.length; i++){
-                    children[i].depth = children[i].x;
-                }
                 this.handleMove(0, -1);
             }
             if(swipeNormal.y > 0.8) {
-                for (var i = 0; i < children.length; i++){
-                    children[i].depth = game.config.height - children[i].y;
-                }
                 this.handleMove(1, 0);
             }
             if(swipeNormal.y < -0.8) {
-                for (var i = 0; i < children.length; i++){
-                    children[i].depth = children[i].y;
-                }
                 this.handleMove(-1, 0);
             }
         }
     },
+
     addTwo: function(){
         var emptyTiles = [];
         for(var i = 0; i < 4; i++){
@@ -111,65 +107,59 @@ var playGame = new Phaser.Class({
             },
         });
 	},
+
     handleKey: function(e){
         if(this.canMove){
-            var children = this.fieldGroup.getChildren();
             switch(e.code){
                 case "KeyA":
                 case "ArrowLeft":
-                    for (var i = 0; i < children.length; i++){
-                        children[i].depth = children[i].x;
-                    }
                     this.handleMove(0, -1);
                     break;
                 case "KeyD":
                 case "ArrowRight":
-                    for (var i = 0; i < children.length; i++){
-                        children[i].depth = game.config.width - children[i].x;
-                    }
                     this.handleMove(0, 1);
                     break;
                 case "KeyW":
                 case "ArrowUp":
-                    for (var i = 0; i < children.length; i++){
-                        children[i].depth = children[i].y;
-                    }
                     this.handleMove(-1, 0);
                     break;
                 case "KeyS":
                 case "ArrowDown":
-                    for (var i = 0; i < children.length; i++){
-                        children[i].depth = game.config.height - children[i].y;
-                    }
                     this.handleMove(1, 0);
                     break;
             }
         }
     },
+
     handleMove: function(deltaRow, deltaCol){
         this.canMove = false;
         var somethingMoved = false;
         this.movingTiles = 0;
         for(var i = 0; i < 4; i++){
             for(var j = 0; j < 4; j++){
-                var colToWatch = deltaCol == 1 ? (4 - 1) - j : j;
-                var rowToWatch = deltaRow == 1 ? (4 - 1) - i : i;
+                var colToWatch = deltaCol == 1 ? 3 - j : j;
+                var rowToWatch = deltaRow == 1 ? 3 - i : i;
                 var tileValue = this.fieldArray[rowToWatch][colToWatch].tileValue;
                 if(tileValue != 0){
                     var colSteps = deltaCol;
                     var rowSteps = deltaRow;
-                    while(this.isInsideBoard(rowToWatch + rowSteps, colToWatch + colSteps) && this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue == 0){
+                    while(this.isInsideBoard(rowToWatch + rowSteps, colToWatch + colSteps) 
+                    && this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue == 0){
                         colSteps += deltaCol;
                         rowSteps += deltaRow;
                     }
-                    if(this.isInsideBoard(rowToWatch + rowSteps, colToWatch + colSteps) && (this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue == tileValue) && this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].canUpgrade && this.fieldArray[rowToWatch][colToWatch].canUpgrade){
+
+                    if(this.isInsideBoard(rowToWatch + rowSteps, colToWatch + colSteps) 
+                    && (this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue == tileValue) 
+                    && this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].canUpgrade 
+                    && this.fieldArray[rowToWatch][colToWatch].canUpgrade) {
                         this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue ++;
                         this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].canUpgrade = false;
                         this.fieldArray[rowToWatch][colToWatch].tileValue = 0;
                         this.moveTile(this.fieldArray[rowToWatch][colToWatch], rowToWatch + rowSteps, colToWatch + colSteps, Math.abs(rowSteps + colSteps), true);
                         somethingMoved = true;
                     }
-                    else{
+                    else {
                         colSteps = colSteps - deltaCol;
                         rowSteps = rowSteps - deltaRow;
                         if(colSteps != 0 || rowSteps != 0){
@@ -186,6 +176,7 @@ var playGame = new Phaser.Class({
             this.canMove = true;
         }
     },
+
     moveTile: function(tile, row, col, distance, changeNumber){
         this.movingTiles ++;
         this.tweens.add({
@@ -207,6 +198,7 @@ var playGame = new Phaser.Class({
     },
     transformTile: function(tile, row, col){
         this.movingTiles ++;
+        this.score ++;
         tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({
             targets: [tile.tileSprite],
@@ -247,8 +239,13 @@ var playGame = new Phaser.Class({
     },
     tileDestination: function(pos){
         return pos * (gameOptions.tileSize + gameOptions.tileSpacing) + gameOptions.tileSize / 2 + gameOptions.tileSpacing
+    },
+    update() {
+        this.scoreText.setText(`Score: ${this.score}`);
     }
 });
+
+// for visual use
 function resize() {
     var canvas = document.querySelector("canvas");
     var windowWidth = window.innerWidth;

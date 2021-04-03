@@ -275,16 +275,12 @@ var playGame = new Phaser.Class({
             1: {x:1, y:0},  //Right
             2: {x:0, y:1},  //Down
             3: {x:-1, y:0}  //Left
-        }
-        return map[direction]
+        };
+        return map[direction];
     },
     movesAvailable: function() {
         return this.cellAvailable() || this.tileMatchesAvailable();
     },
-    // endGame: function() {
-    //     var statusBox = this.add.graphics()
-    //     statusBox.
-    // },
     update() {
         this.scoreText.setText(`Score: ${this.score}`);
         for(var i = 0; i < 4; i++){
@@ -294,10 +290,9 @@ var playGame = new Phaser.Class({
                 }
             }
         }
+        //Game over
         if (!this.movesAvailable()) {
-            this.result.setText("You lose!");
-            this.gameOver = true;
-            this.endGame();
+            this.result.setText("You lose!")
         }
     }
 });

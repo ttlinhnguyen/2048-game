@@ -34,7 +34,7 @@ var playGame = new Phaser.Class({
     create: function(){
         this.score = 0
         this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {color: '#000', fontSize: '20px'})
-        this.result = this.add.text(200, 10, 'true', {color: '#000'})
+        this.result = this.add.text(200, 10, 'none', {color: '#000'})
         this.fieldArray = [];
         this.fieldGroup = this.add.group();
         for(var i = 0; i < 4; i++){
@@ -83,17 +83,7 @@ var playGame = new Phaser.Class({
     },
 
     addTwo: function(){
-        var emptyTiles = [];
-        for(var i = 0; i < 4; i++){
-            for(var j = 0; j < 4; j++){
-                if(this.fieldArray[i][j].tileValue == 0){
-                    emptyTiles.push({
-                        row: i,
-                        col: j
-                    })
-                }
-            }
-        }
+        var emptyTiles = this.emptyCells();
         var chosenTile = Phaser.Utils.Array.GetRandomElement(emptyTiles);
         this.fieldArray[chosenTile.row][chosenTile.col].tileValue = 1;
         this.fieldArray[chosenTile.row][chosenTile.col].tileSprite.visible = true;
@@ -148,7 +138,7 @@ var playGame = new Phaser.Class({
                         colSteps += deltaCol;
                         rowSteps += deltaRow;
                     }
-
+                    // if change number
                     if(this.isInsideBoard(rowToWatch + rowSteps, colToWatch + colSteps) 
                     && (this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].tileValue == tileValue) 
                     && this.fieldArray[rowToWatch + rowSteps][colToWatch + colSteps].canUpgrade 
@@ -158,7 +148,9 @@ var playGame = new Phaser.Class({
                         this.fieldArray[rowToWatch][colToWatch].tileValue = 0;
                         this.moveTile(this.fieldArray[rowToWatch][colToWatch], rowToWatch + rowSteps, colToWatch + colSteps, Math.abs(rowSteps + colSteps), true);
                         somethingMoved = true;
+                        this.tileMatchesAvailable(true);
                     }
+                    // if not change number
                     else {
                         colSteps = colSteps - deltaCol;
                         rowSteps = rowSteps - deltaRow;
@@ -167,6 +159,7 @@ var playGame = new Phaser.Class({
                             this.fieldArray[rowToWatch][colToWatch].tileValue = 0;
                             this.moveTile(this.fieldArray[rowToWatch][colToWatch], rowToWatch + rowSteps, colToWatch + colSteps, Math.abs(rowSteps + colSteps), false);
                             somethingMoved = true;
+                            this.tileMatchesAvailable(false);
                         }
                     }
                 }
@@ -240,8 +233,42 @@ var playGame = new Phaser.Class({
     tileDestination: function(pos){
         return pos * (gameOptions.tileSize + gameOptions.tileSpacing) + gameOptions.tileSize / 2 + gameOptions.tileSpacing
     },
+    emptyCells: function() {
+        var emptyTiles = [];
+        for(var i = 0; i < 4; i++){
+            for(var j = 0; j < 4; j++){
+                if(this.fieldArray[i][j].tileValue == 0){
+                    emptyTiles.push({
+                        row: i,
+                        col: j
+                    })
+                }
+            }
+        }
+        return emptyTiles;
+    },
+    cellAvailable: function() {
+        return !!this.emptyCells().length
+    },
+    tileMatchesAvailable: function(status) {
+        console.log(status);
+        return status;
+    },
+    movesAvailable: function() {
+        return this.cellAvailable() || this.tileMatchesAvailable();
+    },
     update() {
         this.scoreText.setText(`Score: ${this.score}`);
+        for(var i = 0; i < 4; i++){
+            for(var j = 0; j < 4; j++){
+                if(this.fieldArray[i][j].tileValue == 11){
+                    this.result.setText("You win!")
+                }
+            }
+        }
+        if (!this.movesAvailable()) {
+            this.result.setText("You lose!")
+        }
     }
 });
 

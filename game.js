@@ -33,6 +33,7 @@ var playGame = new Phaser.Class({
     },
     create: function(){
         this.score = 0
+        this.gameOver = false;
         this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {color: '#000', fontSize: '20px'})
         this.result = this.add.text(200, 10, 'none', {color: '#000'})
         this.fieldArray = [];
@@ -148,7 +149,6 @@ var playGame = new Phaser.Class({
                         this.fieldArray[rowToWatch][colToWatch].tileValue = 0;
                         this.moveTile(this.fieldArray[rowToWatch][colToWatch], rowToWatch + rowSteps, colToWatch + colSteps, Math.abs(rowSteps + colSteps), true);
                         somethingMoved = true;
-                        this.tileMatchesAvailable(true);
                     }
                     // if not change number
                     else {
@@ -159,7 +159,6 @@ var playGame = new Phaser.Class({
                             this.fieldArray[rowToWatch][colToWatch].tileValue = 0;
                             this.moveTile(this.fieldArray[rowToWatch][colToWatch], rowToWatch + rowSteps, colToWatch + colSteps, Math.abs(rowSteps + colSteps), false);
                             somethingMoved = true;
-                            this.tileMatchesAvailable(false);
                         }
                     }
                 }
@@ -210,19 +209,21 @@ var playGame = new Phaser.Class({
         })
     },
     resetTiles: function(){
+        var tile;
         for(var i = 0; i < 4; i++){
             for(var j = 0; j < 4; j++){
-                this.fieldArray[i][j].canUpgrade = true;
-                this.fieldArray[i][j].tileSprite.x = this.tileDestination(j);
-                this.fieldArray[i][j].tileSprite.y = this.tileDestination(i);
-                if(this.fieldArray[i][j].tileValue > 0){
-                    this.fieldArray[i][j].tileSprite.alpha = 1;
-                    this.fieldArray[i][j].tileSprite.visible = true;
-                    this.fieldArray[i][j].tileSprite.setFrame(this.fieldArray[i][j].tileValue - 1);
+                tile = this.fieldArray[i][j]
+                tile.canUpgrade = true;
+                tile.tileSprite.x = this.tileDestination(j);
+                tile.tileSprite.y = this.tileDestination(i);
+                if(tile.tileValue > 0){
+                    tile.tileSprite.alpha = 1;
+                    tile.tileSprite.visible = true;
+                    tile.tileSprite.setFrame(this.fieldArray[i][j].tileValue - 1);
                 }
                 else{
-                    this.fieldArray[i][j].tileSprite.alpha = 0;
-                    this.fieldArray[i][j].tileSprite.visible = false;
+                    tile.tileSprite.alpha = 0;
+                    tile.tileSprite.visible = false;
                 }
             }
         }
@@ -250,13 +251,40 @@ var playGame = new Phaser.Class({
     cellAvailable: function() {
         return !!this.emptyCells().length
     },
-    tileMatchesAvailable: function(status) {
-        console.log(status);
-        return status;
+    tileMatchesAvailable: function() {
+        var tile;
+        for(var i = 0; i < 4; i++){
+            for(var j = 0; j < 4; j++){
+                tile = this.fieldArray[i][j]
+                for(var direction = 0; direction < 4; direction ++) {
+                    var vector = this.getVector(direction);
+                    if (i+vector.x<4 && i+vector.x>=0 && j+vector.y<4 && j+vector.y>=0) {
+                        var neighbor = this.fieldArray[i + vector.x][j + vector.y]
+                    }
+                    if (neighbor && neighbor.tileValue === tile.tileValue) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false;
+    },
+    getVector: function(direction) {
+        var map = {
+            0: {x:0, y:-1}, //Up
+            1: {x:1, y:0},  //Right
+            2: {x:0, y:1},  //Down
+            3: {x:-1, y:0}  //Left
+        }
+        return map[direction]
     },
     movesAvailable: function() {
         return this.cellAvailable() || this.tileMatchesAvailable();
     },
+    // endGame: function() {
+    //     var statusBox = this.add.graphics()
+    //     statusBox.
+    // },
     update() {
         this.scoreText.setText(`Score: ${this.score}`);
         for(var i = 0; i < 4; i++){
@@ -267,7 +295,9 @@ var playGame = new Phaser.Class({
             }
         }
         if (!this.movesAvailable()) {
-            this.result.setText("You lose!")
+            this.result.setText("You lose!");
+            this.gameOver = true;
+            this.endGame();
         }
     }
 });

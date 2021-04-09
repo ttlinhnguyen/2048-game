@@ -4,13 +4,15 @@ var gameOptions = {
     tweenSpeed: 50,
     tileSpacing: 20
 }
+
+var score = 0;
 window.onload = function() {
     var gameConfig = {
        type: Phaser.CANVAS,
        width: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
        height: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
        backgroundColor: 0xecf0f1,
-       scene: [playGame]
+       scene: [playGame, endGame]
    };
     game = new Phaser.Game(gameConfig);
     window.focus()
@@ -32,10 +34,8 @@ var playGame = new Phaser.Class({
         });
     },
     create: function(){
-        this.score = 0
         this.gameOver = false;
-        this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {color: '#000', fontSize: '20px'})
-        this.result = this.add.text(200, 10, 'none', {color: '#000'})
+        this.scoreText = this.add.text(10, 10, `Score: ${score}`, {color: '#000', fontSize: '20px'})
         this.fieldArray = [];
         this.fieldGroup = this.add.group();
         for(var i = 0; i < 4; i++){
@@ -190,7 +190,7 @@ var playGame = new Phaser.Class({
     },
     transformTile: function(tile, row, col){
         this.movingTiles ++;
-        this.score ++;
+        score ++;
         tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({
             targets: [tile.tileSprite],
@@ -252,16 +252,15 @@ var playGame = new Phaser.Class({
         return !!this.emptyCells().length
     },
     tileMatchesAvailable: function() {
-        var tile;
+        // var tile;
         for(var i = 0; i < 4; i++){
             for(var j = 0; j < 4; j++){
-                tile = this.fieldArray[i][j]
-                for(var direction = 0; direction < 4; direction ++) {
+                for(let direction = 0; direction < 4; direction ++) {
                     var vector = this.getVector(direction);
                     if (i+vector.x<4 && i+vector.x>=0 && j+vector.y<4 && j+vector.y>=0) {
                         var neighbor = this.fieldArray[i + vector.x][j + vector.y]
                     }
-                    if (neighbor && neighbor.tileValue === tile.tileValue) {
+                    if (neighbor && neighbor.tileValue === this.fieldArray[i][j].tileValue) {
                         return true
                     }
                 }
@@ -279,24 +278,49 @@ var playGame = new Phaser.Class({
         return map[direction];
     },
     movesAvailable: function() {
+        // return this.cellAvailable();
+
         return this.cellAvailable() || this.tileMatchesAvailable();
     },
     update() {
-        this.scoreText.setText(`Score: ${this.score}`);
+        this.scoreText.setText(`Score: ${score}`);
         for(var i = 0; i < 4; i++){
             for(var j = 0; j < 4; j++){
                 if(this.fieldArray[i][j].tileValue == 11){
-                    this.result.setText("You win!")
+                    // this.result.setText("You win!")
+                    this.scene.start("EndGame")
                 }
             }
         }
         //Game over
         if (!this.movesAvailable()) {
-            this.result.setText("You lose!")
+            this.scene.start("EndGame")
         }
     }
 });
-
+var endGame = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize:
+    function endGame(){
+        Phaser.Scene.call(this, {key: "EndGame"});
+    },
+    preload: function() {
+        this.load.image("restart", "assets/restart.png")
+    },
+    create: function() {
+        this.text = this.add.text(gameOptions.tileSize*2-90, gameOptions.tileSize *2 - 100, "", {color: "#000", fontSize: "30px", fontFamily: 'font1', align: 'center'})
+        this.text.setText(`You lose!\n\nScore: ${score}`)
+        this.restart = this.add.image(gameOptions.tileSize*2+40, gameOptions.tileSize*2 + 200, "restart").setScale(0.15).setInteractive();
+    },
+    update: function() {
+        this.restart.on("pointerdown", function() {
+            // this.scene.start("PlayGame");
+            // this.scene.sleep("EndGame")
+            // score = 0;
+            location.reload();
+        }, this);
+    }
+})
 // for visual use
 function resize() {
     var canvas = document.querySelector("canvas");

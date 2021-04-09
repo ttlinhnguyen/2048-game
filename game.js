@@ -10,8 +10,8 @@ window.onload = function() {
     var gameConfig = {
        type: Phaser.CANVAS,
        width: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
-       height: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
-       backgroundColor: 0xecf0f1,
+       height: gameOptions.tileSize * 5 + gameOptions.tileSpacing * 5,
+       backgroundColor: 0xffffff,
        scene: [playGame, endGame]
    };
     game = new Phaser.Game(gameConfig);
@@ -27,23 +27,24 @@ var playGame = new Phaser.Class({
         Phaser.Scene.call(this, {key: "PlayGame"});
     },
     preload: function(){
-        // this.load.image("tile", "tile.png");
-        this.load.spritesheet("tiles", "assets/sprites/tiles.png", {
+        this.load.spritesheet("tiles", "assets/sprites/tiles-2.png", {
             frameWidth: gameOptions.tileSize,
             frameHeight: gameOptions.tileSize
         });
     },
     create: function(){
         this.gameOver = false;
-        this.scoreText = this.add.text(10, 10, `Score: ${score}`, {color: '#000', fontSize: '20px'})
+        this.scoreText = this.add.text(30, gameOptions.tileSize*4+20*5, `Score: ${score}`, {color: '#ef4966', fontSize: '30px', fontFamily:"font1"})
         this.fieldArray = [];
+        var graphic = this.add.graphics(0,  gameOptions.tileSize*4+20*5)
+        graphic.lineStyle(5, 0xFFFFFF, 1.0)
         this.fieldGroup = this.add.group();
         for(var i = 0; i < 4; i++){
             this.fieldArray[i] = [];
             for(var j = 0; j < 4; j++){
                 var two = this.add.sprite(this.tileDestination(j), this.tileDestination(i), "tiles");
                 two.alpha = 0;
-                two.visible = 0;
+                two.visible = false;
                 this.fieldGroup.add(two);
                 this.fieldArray[i][j] = {
                     tileValue: 0,
@@ -305,22 +306,17 @@ var endGame = new Phaser.Class({
         Phaser.Scene.call(this, {key: "EndGame"});
     },
     preload: function() {
-        this.load.image("restart", "assets/restart.png")
+        this.load.image("restart", "assets/restart_restart.png")
     },
     create: function() {
-        this.text = this.add.text(gameOptions.tileSize*2-90, gameOptions.tileSize *2 - 100, "", {color: "#000", fontSize: "30px", fontFamily: 'font1', align: 'center'})
-        this.text.setText(`You lose!\n\nScore: ${score}`)
-        this.restart = this.add.image(gameOptions.tileSize*2+40, gameOptions.tileSize*2 + 200, "restart").setScale(0.15).setInteractive();
-    },
-    update: function() {
-        this.restart.on("pointerdown", function() {
-            // this.scene.start("PlayGame");
-            // this.scene.sleep("EndGame")
-            // score = 0;
-            location.reload();
+        this.result = this.add.text(gameOptions.tileSize*2-90, gameOptions.tileSize *2 - 100, "", {color: "#000", fontSize: "30px", fontFamily: 'font1', align: 'center'})
+        this.result.setText(`GAME OVER!\n\nScore: ${score}`)
+        this.restartButton = this.add.image(gameOptions.tileSize*2+50, gameOptions.tileSize*2 + 200, "restart").setInteractive();
+        this.restartButton.on("pointerdown", function(pointer) {
+            this.scene.start("PlayGame");
         }, this);
     }
-})
+});
 // for visual use
 function resize() {
     var canvas = document.querySelector("canvas");

@@ -31,13 +31,21 @@ var playGame = new Phaser.Class({
             frameWidth: gameOptions.tileSize,
             frameHeight: gameOptions.tileSize
         });
+        this.load.audio("main_audio", "assets/audio.mp3")
+        this.load.audio("plop", "assets/plop.mp3")
     },
     create: function(){
         this.gameOver = false;
+        // this.input.keyboard.on('keyboard-R', function() {
+        //     this.scene.start("EndGame");
+        // });
         this.scoreText = this.add.text(30, gameOptions.tileSize*4+20*5, `Score: ${score}`, {color: '#ef4966', fontSize: '30px', fontFamily:"font1"})
         this.fieldArray = [];
-        var graphic = this.add.graphics(0,  gameOptions.tileSize*4+20*5)
-        graphic.lineStyle(5, 0xFFFFFF, 1.0)
+        const music = this.sound.add("main_audio", { loop: true })
+        this.plop = this.sound.add("plop")
+        music.play()
+        // var graphic = this.add.graphics(0,  gameOptions.tileSize*4+20*5)
+        // graphic.lineStyle(5, 0xFFFFFF, 1.0)
         this.fieldGroup = this.add.group();
         for(var i = 0; i < 4; i++){
             this.fieldArray[i] = [];
@@ -119,6 +127,8 @@ var playGame = new Phaser.Class({
                 case "ArrowDown":
                     this.handleMove(1, 0);
                     break;
+                case "KeyR":
+                    this.scene.start("EndGame");
             }
         }
     },
@@ -192,6 +202,7 @@ var playGame = new Phaser.Class({
     transformTile: function(tile, row, col){
         this.movingTiles ++;
         score ++;
+        this.plop.play()
         tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({
             targets: [tile.tileSprite],

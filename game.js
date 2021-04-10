@@ -6,11 +6,13 @@ var gameOptions = {
 }
 var musicStatus = true;
 
-// localStorage.setItem("1st", 0)
-// localStorage.setItem("2nd", 0)
-// localStorage.setItem("3rd", 0)
-// localStorage.setItem("4th", 0)
-// localStorage.setItem("5th", 0)
+if (!localStorage["1st"]) {
+localStorage.setItem("1st", 0)
+localStorage.setItem("2nd", 0)
+localStorage.setItem("3rd", 0)
+localStorage.setItem("4th", 0)
+localStorage.setItem("5th", 0)
+}
 var score = 0;
 window.onload = function () {
     var gameConfig = {
@@ -224,8 +226,8 @@ var playGame = new Phaser.Class({
         this.movingTiles = 0;
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
-                var colToWatch = deltaCol == 1 ? 3 - j : j;
-                var rowToWatch = deltaRow == 1 ? 3 - i : i;
+                var colToWatch = deltaCol == 1 ? (4 - 1) - j : j;
+                var rowToWatch = deltaRow == 1 ? (4 - 1) - i : i;
                 var tileValue = this.fieldArray[rowToWatch][colToWatch].tileValue;
                 if (tileValue != 0) {
                     var colSteps = deltaCol;

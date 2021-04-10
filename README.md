@@ -1,5 +1,6 @@
 # 2048 Game - JSA Project
 
+https://tulinh1311.github.io/project-jsa/
 ## Framework
 - Phaser (3.2)
 

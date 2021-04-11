@@ -69,9 +69,20 @@ var startGame = new Phaser.Class({
         this.music.play()
         this.add.image(450, 530, "startbg")
         this.startButton = this.add.image(450, 760, "startbtn").setScale(0.7).setInteractive()
-        this.startButton.on("pointerdown", function () {
-            this.scene.start("PlayGame")
+        this.startButton.on("pointerdown", function (pointer) {
+            this.tweens.add({
+                targets: [this.startButton],
+                scaleX: 1.005,
+                scaleY: 1.005,
+                duration: gameOptions.tweenSpeed,
+                yoyo: true,
+                repeat: 1,
+                onComplete: function (tween) {
+                    tween.parent.scene.scene.start("PlayGame")
+                    }
+            });
         }, this)
+        
     }
 })
 var playGame = new Phaser.Class({
@@ -90,6 +101,7 @@ var playGame = new Phaser.Class({
         this.closeButton = this.add.image(650, 990, "close").setInteractive()
         this.closeButton.visible = false
         this.restartSmall.on("pointerdown", function () {
+            highestScores(score)
             score = 0
             this.scene.start("PlayGame");
         }, this)
@@ -427,30 +439,23 @@ var endGame = new Phaser.Class({
         this.result = this.add.text(gameOptions.tileSize * 2 - 90, gameOptions.tileSize * 2 - 100, "", { color: "#000", fontSize: "30px", fontFamily: 'font1', align: 'center' })
         this.result.setText(`GAME OVER!\n\nScore: ${score}`)
 
-        function highestScores(score) {
-            var first = localStorage.getItem("1st") || 0;
-            var second = localStorage.getItem("2nd") || 0;
-            var third = localStorage.getItem("3rd") || 0;
-            var fourth = localStorage.getItem("4th") || 0;
-            var fifth = localStorage.getItem("5th") || 0;
-            if (score > first) { fifth = fourth; fourth = third; third = second; second = first; first = score }
-            else if (score > second) { fifth = fourth; fourth = third; third = second; second = score }
-            else if (score > third) { fifth = fourth; fourth = third; third = score }
-            else if (score > fourth) { fifth = fourth; fourth = score }
-            else if (score > fifth) { fifth = score }
-            localStorage.setItem("1st", first)
-            localStorage.setItem("2nd", second)
-            localStorage.setItem("3rd", third)
-            localStorage.setItem("4th", fourth)
-            localStorage.setItem("5th", fifth)
-        }
 
         highestScores(score);
 
         this.restartButton = this.add.image(gameOptions.tileSize * 2 + 50, gameOptions.tileSize * 2 + 200, "restart").setInteractive();
         this.restartButton.on("pointerdown", function (pointer) {
             score = 0;
-            this.scene.start("PlayGame");
+            this.tweens.add({
+                targets: [this.restartButton],
+                scaleX: 1.05,
+                scaleY: 1.05,
+                duration: gameOptions.tweenSpeed,
+                yoyo: true,
+                repeat: 1,
+                onComplete: function (tween) {
+                    tween.parent.scene.scene.start("PlayGame")
+                    }
+            });
         }, this);
     }
 });
@@ -469,6 +474,24 @@ function resize() {
         canvas.style.width = (windowHeight * gameRatio) + "px";
         canvas.style.height = windowHeight + "px";
     }
+}
+
+function highestScores(score) {
+    var first = localStorage.getItem("1st") || 0;
+    var second = localStorage.getItem("2nd") || 0;
+    var third = localStorage.getItem("3rd") || 0;
+    var fourth = localStorage.getItem("4th") || 0;
+    var fifth = localStorage.getItem("5th") || 0;
+    if (score > first) { fifth = fourth; fourth = third; third = second; second = first; first = score }
+    else if (score > second) { fifth = fourth; fourth = third; third = second; second = score }
+    else if (score > third) { fifth = fourth; fourth = third; third = score }
+    else if (score > fourth) { fifth = fourth; fourth = score }
+    else if (score > fifth) { fifth = score }
+    localStorage.setItem("1st", first)
+    localStorage.setItem("2nd", second)
+    localStorage.setItem("3rd", third)
+    localStorage.setItem("4th", fourth)
+    localStorage.setItem("5th", fifth)
 }
 
 var loadingBar = function (game) {

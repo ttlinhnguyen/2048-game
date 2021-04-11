@@ -398,6 +398,9 @@ var playGame = new Phaser.Class({
         if (score >= 100) {
             this.scoreText.x = 100;
         }
+        if (score >= 1000) {
+            this.scoreText.x = 70;
+        }
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
                 if (this.fieldArray[i][j].tileValue == 11) {

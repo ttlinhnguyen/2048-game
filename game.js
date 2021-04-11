@@ -7,11 +7,11 @@ var gameOptions = {
 var musicStatus = true;
 
 if (!localStorage["1st"]) {
-localStorage.setItem("1st", 0)
-localStorage.setItem("2nd", 0)
-localStorage.setItem("3rd", 0)
-localStorage.setItem("4th", 0)
-localStorage.setItem("5th", 0)
+    localStorage.setItem("1st", 0)
+    localStorage.setItem("2nd", 0)
+    localStorage.setItem("3rd", 0)
+    localStorage.setItem("4th", 0)
+    localStorage.setItem("5th", 0)
 }
 var score = 0;
 window.onload = function () {
@@ -20,13 +20,43 @@ window.onload = function () {
         width: gameOptions.tileSize * 4 + gameOptions.tileSpacing * 5,
         height: gameOptions.tileSize * 5 + gameOptions.tileSpacing * 5,
         backgroundColor: 0xffffff,
-        scene: [startGame, playGame, endGame]
+        scene: [preloader, startGame, playGame, endGame]
     };
     game = new Phaser.Game(gameConfig);
     window.focus()
     resize();
     window.addEventListener("resize", resize, false);
 }
+var preloader = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize:
+        function preloader() {
+            Phaser.Scene.call(this, { key: "Preloader" });
+        },
+    preload: function () {
+        loadingBar(this);
+        this.load.spritesheet("tiles", "assets/sprites/tiles-2.png", {
+            frameWidth: gameOptions.tileSize,
+            frameHeight: gameOptions.tileSize
+        });
+        this.load.audio("main_audio", "assets/audio.mp3")
+        this.load.image("startbg", "assets/startscene.png")
+        this.load.image("startbtn", "assets/icons/tiles_start.png")
+        this.load.audio("plop", "assets/plop.mp3")
+        this.load.image("nav", "assets/icons/tiles_nav.png")
+        this.load.image("musicon", "assets/icons/tiles_musicon.png")
+        this.load.image("musicoff", "assets/icons/tiles_musicoff.png")
+        this.load.image("restart-small", "assets/icons/tiles_restart-18.png")
+        this.load.image("score", "assets/icons/tiles_score.png")
+        this.load.image("leaderboard", "assets/icons/tiles_leaderboard.png")
+        this.load.image("scoreboard", "assets/icons/tiles_highest score.png")
+        this.load.image("close", "assets/icons/tiles_close.png")
+        this.load.image("restart", "assets/restart_restart.png")
+    },
+    create: function () {
+        this.scene.start("StartGame")
+    }
+});
 
 var startGame = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -34,17 +64,12 @@ var startGame = new Phaser.Class({
         function startGame() {
             Phaser.Scene.call(this, { key: "StartGame" });
         },
-    preload: function () {
-        this.load.audio("main_audio", "assets/audio.mp3")
-        this.load.image("startbg", "assets/startscene.png")
-        this.load.image("startbtn", "assets/icons/tiles_start.png")
-    },
     create: function () {
         this.music = this.sound.add("main_audio", { loop: true })
         this.music.play()
         this.add.image(450, 530, "startbg")
         this.startButton = this.add.image(450, 760, "startbtn").setScale(0.7).setInteractive()
-        this.startButton.on("pointerdown", function() {
+        this.startButton.on("pointerdown", function () {
             this.scene.start("PlayGame")
         }, this)
     }
@@ -55,22 +80,6 @@ var playGame = new Phaser.Class({
         function playGame() {
             Phaser.Scene.call(this, { key: "PlayGame" });
         },
-    preload: function () {
-        this.load.spritesheet("tiles", "assets/sprites/tiles-2.png", {
-            frameWidth: gameOptions.tileSize,
-            frameHeight: gameOptions.tileSize
-        });
-        // this.load.audio("main_audio", "assets/audio.mp3")
-        this.load.audio("plop", "assets/plop.mp3")
-        this.load.image("nav", "assets/icons/tiles_nav.png")
-        this.load.image("musicon", "assets/icons/tiles_musicon.png")
-        this.load.image("musicoff", "assets/icons/tiles_musicoff.png")
-        this.load.image("restart-small", "assets/icons/tiles_restart-18.png")
-        this.load.image("score", "assets/icons/tiles_score.png")
-        this.load.image("leaderboard", "assets/icons/tiles_leaderboard.png")
-        this.load.image("scoreboard", "assets/icons/tiles_highest score.png")
-        this.load.image("close", "assets/icons/tiles_close.png")
-    },
     create: function () {
         this.add.image(450, 990, "nav")
         this.add.image(170, 990, "score")
@@ -116,7 +125,7 @@ var playGame = new Phaser.Class({
 5th. ${this.storage.getItem("5th")}`)
         }, this)
 
-        this.closeButton.on('pointerdown', function() {
+        this.closeButton.on('pointerdown', function () {
             this.leaderboard.visible = true;
             this.closeButton.visible = false;
 
@@ -410,9 +419,6 @@ var endGame = new Phaser.Class({
         function endGame() {
             Phaser.Scene.call(this, { key: "EndGame" });
         },
-    preload: function () {
-        this.load.image("restart", "assets/restart_restart.png")
-    },
     create: function () {
         this.result = this.add.text(gameOptions.tileSize * 2 - 90, gameOptions.tileSize * 2 - 100, "", { color: "#000", fontSize: "30px", fontFamily: 'font1', align: 'center' })
         this.result.setText(`GAME OVER!\n\nScore: ${score}`)
@@ -424,7 +430,7 @@ var endGame = new Phaser.Class({
             var fourth = localStorage.getItem("4th") || 0;
             var fifth = localStorage.getItem("5th") || 0;
             if (score > first) { fifth = fourth; fourth = third; third = second; second = first; first = score }
-            else if (score > second) {  fifth = fourth; fourth = third; third = second;second = score }
+            else if (score > second) { fifth = fourth; fourth = third; third = second; second = score }
             else if (score > third) { fifth = fourth; fourth = third; third = score }
             else if (score > fourth) { fifth = fourth; fourth = score }
             else if (score > fifth) { fifth = score }
@@ -459,4 +465,57 @@ function resize() {
         canvas.style.width = (windowHeight * gameRatio) + "px";
         canvas.style.height = windowHeight + "px";
     }
+}
+
+var loadingBar = function (game) {
+    var width = game.cameras.main.width;
+    var height = game.cameras.main.height;
+    var progressBar = game.add.graphics();
+    var progressBox = game.add.graphics();
+    progressBox.fillStyle(0xef4996, 0.8);
+    progressBox.fillRect(width / 2 - 165, height / 3 * 2, 320, 50);
+
+    var loadingText = game.make.text({
+        x: width / 2,
+        y: height / 2 - 50,
+        text: 'Loading...',
+        style: { color: '#ef4966', fontSize: '20px', fontFamily: "font1" }
+    });
+    loadingText.setOrigin(0.5, 0.5);
+
+    var percentText = game.make.text({
+        x: width / 2,
+        y: height / 2 - 5,
+        text: '0%',
+        style: { color: '#ef4966', fontSize: '20px', fontFamily: "font1" }
+    });
+    percentText.setOrigin(0.5, 0.5);
+
+    var assetText = game.make.text({
+        x: width / 2,
+        y: height / 2 + 50,
+        text: '',
+        style: { color: '#ef4966', fontSize: '20px', fontFamily: "font1" }
+    });
+
+    assetText.setOrigin(0.5, 0.5);
+
+    game.load.on('progress', function (value) {
+        percentText.setText(parseInt(value * 100) + '%');
+        progressBar.clear();
+        progressBar.fillStyle(0x000000, 1);
+        progressBar.fillRect(width / 2 - 165 + 10, height / 3 * 2 + 10, 300 * value, 30);
+    });
+
+    game.load.on('fileprogress', function (file) {
+        assetText.setText('Loading asset: ' + file.key);
+    });
+
+    game.load.on('complete', function () {
+        progressBar.destroy();
+        progressBox.destroy();
+        loadingText.destroy();
+        percentText.destroy();
+        assetText.destroy();
+    });
 }

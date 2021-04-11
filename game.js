@@ -90,6 +90,7 @@ var playGame = new Phaser.Class({
         this.closeButton = this.add.image(650, 990, "close").setInteractive()
         this.closeButton.visible = false
         this.restartSmall.on("pointerdown", function () {
+            score = 0
             this.scene.start("PlayGame");
         }, this)
         if (musicStatus) {

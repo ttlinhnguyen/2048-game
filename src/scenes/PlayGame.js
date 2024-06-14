@@ -127,59 +127,58 @@ class PlayGame extends GameManager {
                 let col = deltaCol == 1 ? 4 - 1 - j : j;
                 let row = deltaRow == 1 ? 4 - 1 - i : i;
                 let tileValue = this.fieldArray[row][col].tileValue;
-                if (tileValue != 0) {
-                    let colSteps = deltaCol;
-                    let rowSteps = deltaRow;
-                    while (
-                        this.isInsideBoard(row + rowSteps, col + colSteps) &&
-                        this.fieldArray[row + rowSteps][col + colSteps]
-                            .tileValue == 0
-                    ) {
-                        colSteps += deltaCol;
-                        rowSteps += deltaRow;
-                    }
-                    // if change number
-                    if (
-                        this.isInsideBoard(row + rowSteps, col + colSteps) &&
-                        this.fieldArray[row + rowSteps][col + colSteps]
-                            .tileValue == tileValue &&
-                        this.fieldArray[row + rowSteps][col + colSteps]
-                            .canUpgrade &&
-                        this.fieldArray[row][col].canUpgrade
-                    ) {
-                        this.fieldArray[row + rowSteps][col + colSteps]
-                            .tileValue++;
+                if (tileValue == 0) continue;
+
+                let colSteps = deltaCol;
+                let rowSteps = deltaRow;
+                while (
+                    this.isInsideBoard(row + rowSteps, col + colSteps) &&
+                    this.fieldArray[row + rowSteps][col + colSteps].tileValue ==
+                        0
+                ) {
+                    colSteps += deltaCol;
+                    rowSteps += deltaRow;
+                }
+                // if change number
+                if (
+                    this.isInsideBoard(row + rowSteps, col + colSteps) &&
+                    this.fieldArray[row + rowSteps][col + colSteps].tileValue ==
+                        tileValue &&
+                    this.fieldArray[row + rowSteps][col + colSteps]
+                        .canUpgrade &&
+                    this.fieldArray[row][col].canUpgrade
+                ) {
+                    this.fieldArray[row + rowSteps][col + colSteps].tileValue++;
+                    this.fieldArray[row + rowSteps][
+                        col + colSteps
+                    ].canUpgrade = false;
+                    this.fieldArray[row][col].tileValue = 0;
+                    this.moveTile(
+                        this.fieldArray[row][col],
+                        row + rowSteps,
+                        col + colSteps,
+                        Math.abs(rowSteps + colSteps),
+                        true
+                    );
+                    somethingMoved = true;
+                }
+                // if not change number
+                else {
+                    colSteps = colSteps - deltaCol;
+                    rowSteps = rowSteps - deltaRow;
+                    if (colSteps != 0 || rowSteps != 0) {
                         this.fieldArray[row + rowSteps][
                             col + colSteps
-                        ].canUpgrade = false;
+                        ].tileValue = tileValue;
                         this.fieldArray[row][col].tileValue = 0;
                         this.moveTile(
                             this.fieldArray[row][col],
                             row + rowSteps,
                             col + colSteps,
                             Math.abs(rowSteps + colSteps),
-                            true
+                            false
                         );
                         somethingMoved = true;
-                    }
-                    // if not change number
-                    else {
-                        colSteps = colSteps - deltaCol;
-                        rowSteps = rowSteps - deltaRow;
-                        if (colSteps != 0 || rowSteps != 0) {
-                            this.fieldArray[row + rowSteps][
-                                col + colSteps
-                            ].tileValue = tileValue;
-                            this.fieldArray[row][col].tileValue = 0;
-                            this.moveTile(
-                                this.fieldArray[row][col],
-                                row + rowSteps,
-                                col + colSteps,
-                                Math.abs(rowSteps + colSteps),
-                                false
-                            );
-                            somethingMoved = true;
-                        }
                     }
                 }
             }

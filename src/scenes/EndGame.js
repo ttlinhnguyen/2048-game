@@ -1,14 +1,15 @@
 import { gameOptions } from "../commonSettings";
 import highestScores from "../highestScore";
 import { score } from "./PlayGame";
-import { Scene, Class } from "phaser";
+import { Scene } from "phaser";
 
-var EndGame = new Class({
-    Extends: Scene,
-    initialize: function endGame() {
+export default class EndGame extends Scene {
+    constructor() {
+        super();
         Scene.call(this, { key: "EndGame" });
-    },
-    create: function () {
+    }
+
+    create() {
         this.result = this.add.text(
             gameOptions.tileSize * 2 - 90,
             gameOptions.tileSize * 2 - 100,
@@ -31,24 +32,20 @@ var EndGame = new Class({
                 "restart"
             )
             .setInteractive();
-        this.restartButton.on(
-            "pointerdown",
-            function (pointer) {
-                this.tweens.add({
-                    targets: [this.restartButton],
-                    scaleX: 1.05,
-                    scaleY: 1.05,
-                    duration: gameOptions.tweenSpeed,
-                    yoyo: true,
-                    repeat: 1,
-                    onComplete: function (tween) {
-                        tween.parent.scene.scene.start("PlayGame");
-                    },
-                });
-            },
-            this
-        );
-    },
-});
+        this.restartButton.on("pointerdown", this.restart, this);
+    }
 
-export default EndGame;
+    restart() {
+        this.tweens.add({
+            targets: [this.restartButton],
+            scaleX: 1.05,
+            scaleY: 1.05,
+            duration: gameOptions.tweenSpeed,
+            yoyo: true,
+            repeat: 1,
+            onComplete: function (tween) {
+                tween.parent.scene.scene.start("PlayGame");
+            },
+        });
+    }
+}

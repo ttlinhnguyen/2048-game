@@ -6,14 +6,6 @@ import EndGame from "./scenes/EndGame";
 import { CANVAS, Game } from "phaser";
 var game;
 
-if (!localStorage["1st"]) {
-    localStorage.setItem("1st", 0);
-    localStorage.setItem("2nd", 0);
-    localStorage.setItem("3rd", 0);
-    localStorage.setItem("4th", 0);
-    localStorage.setItem("5th", 0);
-}
-
 window.onload = function () {
     var gameConfig = {
         type: CANVAS,

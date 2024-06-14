@@ -1,12 +1,13 @@
 import { gameOptions } from "../commonSettings";
-import { Scene, Class } from "phaser";
+import { Scene } from "phaser";
 
-var Preloader = new Class({
-    Extends: Scene,
-    initialize: function preloader() {
+export default class Preloader extends Scene {
+    constructor() {
+        super();
         Scene.call(this, { key: "Preloader" });
-    },
-    preload: function () {
+    }
+
+    preload() {
         loadingBar(this);
         this.load.spritesheet("tiles", "assets/sprites/tiles-2.png", {
             frameWidth: gameOptions.tileSize,
@@ -25,11 +26,12 @@ var Preloader = new Class({
         this.load.image("scoreboard", "assets/icons/tiles_highest score.png");
         this.load.image("close", "assets/icons/tiles_close.png");
         this.load.image("restart", "assets/restart_restart.png");
-    },
-    create: function () {
+    }
+    create() {
         this.scene.start("StartGame");
-    },
-});
+    }
+}
+
 var loadingBar = function (game) {
     var width = game.cameras.main.width;
     var height = game.cameras.main.height;
@@ -87,4 +89,4 @@ var loadingBar = function (game) {
         assetText.destroy();
     });
 };
-export default Preloader;
+// export default Preloader;

@@ -139,19 +139,18 @@ class PlayGame extends GameManager {
                     colSteps += deltaCol;
                     rowSteps += deltaRow;
                 }
+
                 // if change number
+                let newRows = row + rowSteps;
+                let newCols = col + colSteps;
                 if (
-                    this.isInsideBoard(row + rowSteps, col + colSteps) &&
-                    this.fieldArray[row + rowSteps][col + colSteps].tileValue ==
-                        tileValue &&
-                    this.fieldArray[row + rowSteps][col + colSteps]
-                        .canUpgrade &&
+                    this.isInsideBoard(newRows, newCols) &&
+                    this.fieldArray[newRows][newCols].tileValue == tileValue &&
+                    this.fieldArray[newRows][newCols].canUpgrade &&
                     this.fieldArray[row][col].canUpgrade
                 ) {
-                    this.fieldArray[row + rowSteps][col + colSteps].tileValue++;
-                    this.fieldArray[row + rowSteps][
-                        col + colSteps
-                    ].canUpgrade = false;
+                    this.fieldArray[newRows][newCols].tileValue++;
+                    this.fieldArray[newRows][newCols].canUpgrade = false;
                     this.fieldArray[row][col].tileValue = 0;
                     this.moveTile(
                         this.fieldArray[row][col],

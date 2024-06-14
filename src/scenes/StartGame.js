@@ -1,4 +1,4 @@
-import { gameOptions } from "./commonSettings.js";
+import { gameOptions } from "../commonSettings.js";
 var StartGame = new Phaser.Class({
     Extends: Phaser.Scene,
     initialize:

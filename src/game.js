@@ -1,8 +1,8 @@
 import { gameOptions } from "./commonSettings.js";
-import Preloader from "./Preloader.js";
-import StartGame from "./StartGame.js";
-import { PlayGame } from "./PlayGame.js";
-import EndGame from "./EndGame.js";
+import Preloader from "./scenes/Preloader.js";
+import StartGame from "./scenes/StartGame.js";
+import { PlayGame } from "./scenes/PlayGame.js";
+import EndGame from "./scenes/EndGame.js";
 var game;
 
 if (!localStorage["1st"]) {

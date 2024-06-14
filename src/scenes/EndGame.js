@@ -7,6 +7,7 @@ export default class EndGame extends GameScene {
     }
 
     create() {
+        this.endTime = new Date();
         this.result = this.add.text(
             gameOptions.tileSize * 2 - 90,
             gameOptions.tileSize * 2 - 100,
@@ -18,9 +19,13 @@ export default class EndGame extends GameScene {
                 align: "center",
             }
         );
-        this.result.setText(`GAME OVER!\n\nScore: ${this.score}`);
 
-        this.recordLeaderboard(this.score)
+        if (this.score === 11) {
+            this.result.setText(`YOU WIN!`);
+            this.recordLeaderboard(this.endTime - this.startTime);
+        } else {
+            this.result.setText(`GAME OVER!`);
+        }
 
         this.restartButton = this.add
             .image(

@@ -36,7 +36,7 @@ export default class Preloader extends GameScene {
         if (!localStorage.getItem("leaderboard")) {
             localStorage.setItem(
                 "leaderboard",
-                JSON.stringify([0, 0, 0, 0, 0])
+                JSON.stringify([])
             );
         }
     }

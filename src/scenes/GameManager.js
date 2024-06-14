@@ -60,12 +60,12 @@ export default class GameManager extends GameScene {
             fontFamily: "font1",
         });
         this.scoreText = this.add.text(
-            150,
+            100,
             gameOptions.tileSize * 4 + 20 * 9,
             `${this.score}`,
             {
                 color: "#ef4966",
-                fontSize: "50px",
+                fontSize: "30px",
                 fontFamily: "font1",
                 align: "justify",
             }
@@ -87,8 +87,16 @@ export default class GameManager extends GameScene {
 
         let scores = this.storage.getItem("leaderboard");
         scores = scores ? JSON.parse(scores) : [];
-        for (let i = 0; i < scores.length; i++) {
-            this.leaderResults.appendText(`${i + 1}. ${scores[i]}`);
+        for (let i = 0; i < 5; i++) {
+            if (scores[i]) {
+                let minutes = Math.floor(scores[i] / 60000);
+                let seconds = ((scores[i] % 60000) / 1000).toFixed(0);
+                this.leaderResults.appendText(
+                    `${i + 1}. ${minutes}m${seconds}s`
+                );
+            } else {
+                this.leaderResults.appendText(`${i + 1}. ${null}`);
+            }
         }
     }
 

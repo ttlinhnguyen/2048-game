@@ -1,5 +1,5 @@
 import { gameOptions } from "../commonSettings";
-import { GameObjects, Geom, Utils } from "phaser";
+import { Geom, Utils } from "phaser";
 import GameManager from "./GameManager";
 
 export default class PlayGame extends GameManager {
@@ -33,6 +33,8 @@ export default class PlayGame extends GameManager {
         this.canMove = false;
         this.addTwo();
         this.addTwo();
+
+        this.startTime = new Date();
     }
 
     createEmptyTile(x, y) {
@@ -43,7 +45,6 @@ export default class PlayGame extends GameManager {
     }
 
     restart() {
-        this.recordLeaderboard(this.score);
         this.score = 0;
         this.scene.start("PlayGame");
     }
@@ -203,8 +204,6 @@ export default class PlayGame extends GameManager {
 
     transformTile(tile, row, col) {
         this.movingTiles++;
-        this.score++;
-        this.recordLeaderboard(this.score);
         this.plop.play();
         tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({
@@ -306,24 +305,22 @@ export default class PlayGame extends GameManager {
     }
 
     update() {
-        this.scoreText.setText(`${this.score}`);
-
-        if (this.score >= 1000) {
-            this.scoreText.x = 70;
-        } else if (this.score >= 100) {
-            this.scoreText.x = 100;
-        } else if (this.score >= 10) {
-            this.scoreText.x = 120;
-        }
+        let millis = new Date().getTime() - this.startTime;
+        let minutes = Math.floor(millis / 60000);
+        let seconds = ((millis % 60000) / 1000).toFixed(0);
+        this.scoreText.setText(`${minutes}m${seconds}s`);
 
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
+                // Win
                 if (this.fieldArray[i][j].tileValue === 11) {
+                    this.score = 11;
                     this.scene.start("EndGame");
                 }
             }
         }
 
+        this.score = 0;
         //Game over
         if (!this.movesAvailable()) {
             this.scene.start("EndGame");

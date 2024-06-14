@@ -59,32 +59,7 @@ class PlayGame extends Scene {
         );
 
         this.storage = localStorage;
-        this.leaderboard.on(
-            "pointerdown",
-            function () {
-                this.closeButton.visible = true;
-                this.leaderboard.visible = false;
-                this.scoreboard = this.add.image(450, 450, "scoreboard");
-                this.leaderLabel = this.add.text(200, 150, "HIGHEST SCORE", {
-                    color: "#ef4966",
-                    fontSize: "40px",
-                    fontFamily: "font1",
-                });
-                this.leaderResults = this.add.text(200, 250, "", {
-                    color: "#ef4966",
-                    fontSize: "20px",
-                    fontFamily: "font1",
-                });
-                this.leaderResults.setText(`1st. ${this.storage.getItem(
-                    "1st"
-                )}\n
-2nd. ${this.storage.getItem("2nd")}\n
-3rd. ${this.storage.getItem("3rd")}\n
-4th. ${this.storage.getItem("4th")}\n
-5th. ${this.storage.getItem("5th")}`);
-            },
-            this
-        );
+        this.leaderboard.on("pointerdown", this.showLeaderboard, this);
 
         this.closeButton.on(
             "pointerdown",
@@ -147,6 +122,25 @@ class PlayGame extends Scene {
         this.canMove = false;
         this.addTwo();
         this.addTwo();
+    }
+
+    showLeaderboard() {
+        let textStyle = {
+            color: "#ef4966",
+            fontSize: "40px",
+            fontFamily: "font1",
+        };
+
+        this.closeButton.visible = true;
+        this.leaderboard.visible = false;
+        this.scoreboard = this.add.image(450, 450, "scoreboard");
+        this.leaderLabel = this.add.text(200, 150, "HIGHEST SCORE", textStyle);
+        this.leaderResults = this.add.text(200, 250, "", textStyle);
+        this.leaderResults.appendText(`1st. ${this.storage.getItem("1st")}\n`);
+        this.leaderResults.appendText(`2nd. ${this.storage.getItem("2nd")}\n`);
+        this.leaderResults.appendText(`3rd. ${this.storage.getItem("3rd")}\n`);
+        this.leaderResults.appendText(`4th. ${this.storage.getItem("4th")}\n`);
+        this.leaderResults.appendText(`5th. ${this.storage.getItem("5th")}\n`);
     }
 
     endSwipe(e) {
@@ -461,7 +455,7 @@ class PlayGame extends Scene {
                 }
             }
         }
-        
+
         //Game over
         if (!this.movesAvailable()) {
             this.scene.start("EndGame");

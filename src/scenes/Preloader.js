@@ -1,9 +1,10 @@
-import { gameOptions } from "../commonSettings.js";
+import { gameOptions } from "../commonSettings";
+import { Scene, Class } from "phaser";
 
-var Preloader = new Phaser.Class({
-    Extends: Phaser.Scene,
+var Preloader = new Class({
+    Extends: Scene,
     initialize: function preloader() {
-        Phaser.Scene.call(this, { key: "Preloader" });
+        Scene.call(this, { key: "Preloader" });
     },
     preload: function () {
         loadingBar(this);

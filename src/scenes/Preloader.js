@@ -1,10 +1,9 @@
+import GameScene from "../GameScene";
 import { gameOptions } from "../commonSettings";
-import { Scene } from "phaser";
 
-export default class Preloader extends Scene {
+export default class Preloader extends GameScene {
     constructor() {
-        super();
-        Scene.call(this, { key: "Preloader" });
+        super("Preloader");
     }
 
     preload() {

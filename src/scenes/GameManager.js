@@ -1,17 +1,9 @@
-import { Scene } from "phaser";
 import { gameOptions } from "../commonSettings";
-// import score from "../score";
+import GameScene from "../GameScene";
 
-export default class GameManager extends Scene {
-    get score() {
-        return this.registry.get("score");
-    }
-    set score(value) {
-        this.registry.set("score", value);
-    }
-
-    constructor() {
-        super();
+export default class GameManager extends GameScene {
+    constructor(key) {
+        super(key);
         this.musicStatus = true;
     }
 

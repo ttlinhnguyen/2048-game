@@ -1,12 +1,11 @@
 import { gameOptions } from "../commonSettings";
 import highestScores from "../highestScore";
-import { Scene, Geom, Utils } from "phaser";
+import { Geom, Utils } from "phaser";
 import GameManager from "./GameManager";
 
 class PlayGame extends GameManager {
     constructor() {
-        super();
-        Scene.call(this, { key: "PlayGame" });
+        super("PlayGame");
     }
 
     create() {
@@ -45,8 +44,7 @@ class PlayGame extends GameManager {
     }
 
     restart() {
-        highestScores(score);
-        // score = 0;
+        highestScores(this.score);
         this.score = 0;
         this.scene.start("PlayGame");
     }

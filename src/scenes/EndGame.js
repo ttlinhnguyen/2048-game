@@ -1,15 +1,13 @@
+import GameScene from "../GameScene";
 import { gameOptions } from "../commonSettings";
 import highestScores from "../highestScore";
-import { Scene } from "phaser";
 
-export default class EndGame extends Scene {
+export default class EndGame extends GameScene {
     constructor() {
-        super();
-        Scene.call(this, { key: "EndGame" });
+        super("EndGame");
     }
 
     create() {
-        let score = this.registry.get("score");
         this.result = this.add.text(
             gameOptions.tileSize * 2 - 90,
             gameOptions.tileSize * 2 - 100,
@@ -21,9 +19,9 @@ export default class EndGame extends Scene {
                 align: "center",
             }
         );
-        this.result.setText(`GAME OVER!\n\nScore: ${score}`);
+        this.result.setText(`GAME OVER!\n\nScore: ${this.score}`);
 
-        highestScores(score);
+        highestScores(this.score);
 
         this.restartButton = this.add
             .image(

@@ -1,10 +1,9 @@
+import GameScene from "../GameScene.js";
 import { gameOptions } from "../commonSettings.js";
-import { Scene } from "phaser";
 
-export default class StartGame extends Scene {
+export default class StartGame extends GameScene {
     constructor() {
-        super();
-        Scene.call(this, { key: "StartGame" });
+        super("StartGame");
     }
 
     create() {

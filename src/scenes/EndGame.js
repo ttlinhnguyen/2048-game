@@ -1,6 +1,5 @@
 import GameScene from "../GameScene";
 import { gameOptions } from "../commonSettings";
-import highestScores from "../highestScore";
 
 export default class EndGame extends GameScene {
     constructor() {
@@ -21,7 +20,7 @@ export default class EndGame extends GameScene {
         );
         this.result.setText(`GAME OVER!\n\nScore: ${this.score}`);
 
-        highestScores(this.score);
+        this.recordLeaderboard(this.score)
 
         this.restartButton = this.add
             .image(

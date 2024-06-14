@@ -28,6 +28,9 @@ export default class Preloader extends GameScene {
     }
     create() {
         this.scene.start("StartGame");
+        if (!localStorage.getItem("leaderboard")) {
+            localStorage.setItem("leaderboard", JSON.stringify([0, 0, 0, 0, 0]));
+        }
     }
 }
 

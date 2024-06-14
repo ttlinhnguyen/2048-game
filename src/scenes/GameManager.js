@@ -84,11 +84,12 @@ export default class GameManager extends GameScene {
         this.scoreboard = this.add.image(450, 450, "scoreboard");
         this.leaderLabel = this.add.text(200, 150, "HIGHEST SCORE", textStyle);
         this.leaderResults = this.add.text(200, 250, "", textStyle);
-        this.leaderResults.appendText(`1st. ${this.storage.getItem("1st")}\n`);
-        this.leaderResults.appendText(`2nd. ${this.storage.getItem("2nd")}\n`);
-        this.leaderResults.appendText(`3rd. ${this.storage.getItem("3rd")}\n`);
-        this.leaderResults.appendText(`4th. ${this.storage.getItem("4th")}\n`);
-        this.leaderResults.appendText(`5th. ${this.storage.getItem("5th")}\n`);
+
+        let scores = this.storage.getItem("leaderboard");
+        scores = scores ? JSON.parse(scores) : [];
+        for (let i = 0; i < scores.length; i++) {
+            this.leaderResults.appendText(`${i + 1}. ${scores[i]}`);
+        }
     }
 
     closeLeaderboard() {

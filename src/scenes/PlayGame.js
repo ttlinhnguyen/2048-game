@@ -1,5 +1,4 @@
 import { gameOptions } from "../commonSettings";
-import highestScores from "../highestScore";
 import { Geom, Utils } from "phaser";
 import GameManager from "./GameManager";
 
@@ -44,7 +43,7 @@ class PlayGame extends GameManager {
     }
 
     restart() {
-        highestScores(this.score);
+        this.recordLeaderboard(this.score);
         this.score = 0;
         this.scene.start("PlayGame");
     }
@@ -228,8 +227,8 @@ class PlayGame extends GameManager {
 
     transformTile(tile, row, col) {
         this.movingTiles++;
-        // score++;
         this.score++;
+        this.recordLeaderboard(this.score);
         this.plop.play();
         tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({

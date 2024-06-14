@@ -1,11 +1,8 @@
 import { gameOptions } from "../commonSettings";
 import highestScores from "../highestScore";
 import { Scene, Geom, Utils } from "phaser";
-import score from "../score";
 import GameManager from "./GameManager";
 
-// var musicStatus = true;
-// var score = 0;
 class PlayGame extends GameManager {
     constructor() {
         super();
@@ -50,6 +47,7 @@ class PlayGame extends GameManager {
     restart() {
         highestScores(score);
         // score = 0;
+        this.score = 0;
         this.scene.start("PlayGame");
     }
 
@@ -233,6 +231,7 @@ class PlayGame extends GameManager {
     transformTile(tile, row, col) {
         this.movingTiles++;
         // score++;
+        this.score++;
         this.plop.play();
         tile.tileSprite.setFrame(this.fieldArray[row][col].tileValue - 1);
         this.tweens.add({
@@ -347,14 +346,14 @@ class PlayGame extends GameManager {
     }
 
     update() {
-        this.scoreText.setText(`${score}`);
-        if (score >= 10) {
+        this.scoreText.setText(`${this.score}`);
+        if (this.score >= 10) {
             this.scoreText.x = 120;
         }
-        if (score >= 100) {
+        if (this.score >= 100) {
             this.scoreText.x = 100;
         }
-        if (score >= 1000) {
+        if (this.score >= 1000) {
             this.scoreText.x = 70;
         }
         for (var i = 0; i < 4; i++) {

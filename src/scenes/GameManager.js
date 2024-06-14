@@ -1,40 +1,67 @@
 import { Scene } from "phaser";
 import { gameOptions } from "../commonSettings";
-import score from "../score";
+// import score from "../score";
 
 export default class GameManager extends Scene {
+    get score() {
+        return this.registry.get("score");
+    }
+    set score(value) {
+        this.registry.set("score", value);
+    }
+
     constructor() {
         super();
         this.musicStatus = true;
     }
 
     create() {
-        this.add.image(450, 990, "nav");
-        this.add.image(170, 990, "score");
-        this.musicOn = this.add.image(500, 990, "musicon").setInteractive();
-        this.musicOff = this.add.image(500, 990, "musicoff").setInteractive();
+        this.initializeVariables();
+        this.initializeImages();
+        this.initializeEventListeners();
+        this.initializeTexts();
+    }
+
+    initializeVariables() {
+        this.score = 0;
+        this.storage = localStorage;
+        this.gameOver = false;
+    }
+
+    initializeImages() {
+        let y = 990;
+
+        this.add.image(450, y, "nav");
+        this.add.image(170, y, "score");
+        this.musicOn = this.add
+            .image(500, y, "musicon")
+            .setInteractive()
+            .setVisible(this.musicStatus);
+        this.musicOff = this.add
+            .image(500, y, "musicoff")
+            .setInteractive()
+            .setVisible(!this.musicStatus);
         this.restartSmall = this.add
-            .image(800, 990, "restart-small")
+            .image(800, y, "restart-small")
             .setInteractive();
         this.leaderboard = this.add
-            .image(650, 990, "leaderboard")
+            .image(650, y, "leaderboard")
             .setInteractive();
-        this.closeButton = this.add.image(650, 990, "close").setInteractive();
-        this.closeButton.visible = false;
+        this.closeButton = this.add
+            .image(650, y, "close")
+            .setInteractive()
+            .setVisible(false);
+    }
+
+    initializeEventListeners() {
         this.restartSmall.on("pointerdown", this.restart, this);
-        if (this.musicStatus) {
-            this.musicOff.visible = false;
-        } else {
-            this.musicOn.visible = false;
-        }
         this.musicOn.on("pointerdown", this.turnMusicOn, this);
         this.musicOff.on("pointerdown", () => this.turnMusicOn(false), this);
-
-        this.storage = localStorage;
         this.leaderboard.on("pointerdown", this.showLeaderboard, this);
         this.closeButton.on("pointerdown", this.closeLeaderboard, this);
+    }
 
-        this.gameOver = false;
+    initializeTexts() {
         this.add.text(120, gameOptions.tileSize * 4 + 20 * 7, "SCORE", {
             color: "#ef4966",
             fontSize: "20px",
@@ -43,7 +70,7 @@ export default class GameManager extends Scene {
         this.scoreText = this.add.text(
             150,
             gameOptions.tileSize * 4 + 20 * 9,
-            `${score}`,
+            `${this.score}`,
             {
                 color: "#ef4966",
                 fontSize: "50px",

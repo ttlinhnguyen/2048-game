@@ -14,22 +14,20 @@ export default class StartGame extends GameScene {
             .image(450, 760, "startbtn")
             .setScale(0.7)
             .setInteractive();
-        this.startButton.on(
-            "pointerdown",
-            function () {
-                this.tweens.add({
-                    targets: [this.startButton],
-                    scaleX: 1.005,
-                    scaleY: 1.005,
-                    duration: gameOptions.tweenSpeed,
-                    yoyo: true,
-                    repeat: 1,
-                    onComplete: function (tween) {
-                        tween.parent.scene.scene.start("PlayGame");
-                    },
-                });
+        this.startButton.on("pointerdown", this.onStartButtonClick, this);
+    }
+
+    onStartButtonClick() {
+        this.tweens.add({
+            targets: [this.startButton],
+            scaleX: 1.005,
+            scaleY: 1.005,
+            duration: gameOptions.tweenSpeed,
+            yoyo: true,
+            repeat: 1,
+            onComplete: function (tween) {
+                tween.parent.scene.scene.start("PlayGame");
             },
-            this
-        );
+        });
     }
 }

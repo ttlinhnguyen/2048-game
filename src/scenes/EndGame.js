@@ -1,10 +1,12 @@
-import { gameOptions } from "../commonSettings.js";
-import highestScores from "../highestScore.js";
-import { score } from "./PlayGame.js";
-var EndGame = new Phaser.Class({
-    Extends: Phaser.Scene,
+import { gameOptions } from "../commonSettings";
+import highestScores from "../highestScore";
+import { score } from "./PlayGame";
+import { Scene, Class } from "phaser";
+
+var EndGame = new Class({
+    Extends: Scene,
     initialize: function endGame() {
-        Phaser.Scene.call(this, { key: "EndGame" });
+        Scene.call(this, { key: "EndGame" });
     },
     create: function () {
         this.result = this.add.text(

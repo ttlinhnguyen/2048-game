@@ -2,10 +2,10 @@ import { Scene } from "phaser";
 import { gameOptions } from "../commonSettings";
 import score from "../score";
 
-var musicStatus = true;
 export default class GameManager extends Scene {
     constructor() {
         super();
+        this.musicStatus = true;
     }
 
     create() {
@@ -22,47 +22,17 @@ export default class GameManager extends Scene {
         this.closeButton = this.add.image(650, 990, "close").setInteractive();
         this.closeButton.visible = false;
         this.restartSmall.on("pointerdown", this.restart, this);
-        if (musicStatus) {
+        if (this.musicStatus) {
             this.musicOff.visible = false;
         } else {
             this.musicOn.visible = false;
         }
-        this.musicOn.on(
-            "pointerdown",
-            function () {
-                this.sound.mute = true;
-                this.musicOff.visible = true;
-                this.musicOn.visible = false;
-                musicStatus = false;
-            },
-            this
-        );
-        this.musicOff.on(
-            "pointerdown",
-            function () {
-                this.sound.mute = false;
-                this.musicOn.visible = true;
-                this.musicOff.visible = false;
-                musicStatus = true;
-            },
-            this
-        );
+        this.musicOn.on("pointerdown", this.turnMusicOn, this);
+        this.musicOff.on("pointerdown", () => this.turnMusicOn(false), this);
 
         this.storage = localStorage;
         this.leaderboard.on("pointerdown", this.showLeaderboard, this);
-
-        this.closeButton.on(
-            "pointerdown",
-            function () {
-                this.leaderboard.visible = true;
-                this.closeButton.visible = false;
-
-                this.scoreboard.destroy();
-                this.leaderResults.destroy();
-                this.leaderLabel.destroy();
-            },
-            this
-        );
+        this.closeButton.on("pointerdown", this.closeLeaderboard, this);
 
         this.gameOver = false;
         this.add.text(120, gameOptions.tileSize * 4 + 20 * 7, "SCORE", {
@@ -102,7 +72,23 @@ export default class GameManager extends Scene {
         this.leaderResults.appendText(`5th. ${this.storage.getItem("5th")}\n`);
     }
 
+    closeLeaderboard() {
+        this.leaderboard.visible = true;
+        this.closeButton.visible = false;
+
+        this.scoreboard.destroy();
+        this.leaderResults.destroy();
+        this.leaderLabel.destroy();
+    }
+
     restart() {
         throw new Error("Unimplemented");
+    }
+
+    turnMusicOn(on = true) {
+        this.sound.mute = on;
+        this.musicOff.visible = on;
+        this.musicOn.visible = !on;
+        this.musicStatus = !on;
     }
 }

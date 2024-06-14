@@ -1,11 +1,13 @@
-import { gameOptions } from "../commonSettings.js";
-import highestScores from "../highestScore.js";
+import { gameOptions } from "../commonSettings";
+import highestScores from "../highestScore";
+import { Scene, Class, Geom, Utils } from "phaser";
+
 var musicStatus = true;
 var score = 0;
-var PlayGame = new Phaser.Class({
-    Extends: Phaser.Scene,
+var PlayGame = new Class({
+    Extends: Scene,
     initialize: function playGame() {
-        Phaser.Scene.call(this, { key: "PlayGame" });
+        Scene.call(this, { key: "PlayGame" });
     },
     create: function () {
         this.add.image(450, 990, "nav");
@@ -148,9 +150,9 @@ var PlayGame = new Phaser.Class({
 
     endSwipe: function (e) {
         var swipeTime = e.upTime - e.downTime;
-        var swipe = new Phaser.Geom.Point(e.upX - e.downX, e.upY - e.downY);
-        var swipeMagnitude = Phaser.Geom.Point.GetMagnitude(swipe);
-        var swipeNormal = new Phaser.Geom.Point(
+        var swipe = new Geom.Point(e.upX - e.downX, e.upY - e.downY);
+        var swipeMagnitude = Geom.Point.GetMagnitude(swipe);
+        var swipeNormal = new Geom.Point(
             swipe.x / swipeMagnitude,
             swipe.y / swipeMagnitude
         );
@@ -176,7 +178,7 @@ var PlayGame = new Phaser.Class({
 
     addTwo: function () {
         var emptyTiles = this.emptyCells();
-        var chosenTile = Phaser.Utils.Array.GetRandomElement(emptyTiles);
+        var chosenTile = Utils.Array.GetRandom(emptyTiles);
         this.fieldArray[chosenTile.row][chosenTile.col].tileValue = 1;
         this.fieldArray[chosenTile.row][
             chosenTile.col

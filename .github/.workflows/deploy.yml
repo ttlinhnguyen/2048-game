@@ -1,0 +1,22 @@
+name: Deploy to Github Pages
+jobs:
+  on:
+    push:
+      branches: ["main"]
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.0.2
+      - name: Install dependencies
+        run: npm intall
+  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to Github Pages
+        id: deployment
+        run: npm run deploy
+      

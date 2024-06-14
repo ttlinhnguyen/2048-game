@@ -2,7 +2,7 @@ import { gameOptions } from "../commonSettings";
 import { GameObjects, Geom, Utils } from "phaser";
 import GameManager from "./GameManager";
 
-class PlayGame extends GameManager {
+export default class PlayGame extends GameManager {
     constructor() {
         super("PlayGame");
     }
@@ -56,21 +56,16 @@ class PlayGame extends GameManager {
             swipe.x / swipeMagnitude,
             swipe.y / swipeMagnitude
         );
-        if (
-            swipeMagnitude > 20 &&
-            swipeTime < 1000 &&
-            (Math.abs(swipeNormal.y) > 0.8 || Math.abs(swipeNormal.x) > 0.8)
-        ) {
+
+        if (swipeMagnitude > 20 && swipeTime < 1000) {
             if (swipeNormal.x > 0.8) {
                 this.handleMove(0, 1);
-            }
-            if (swipeNormal.x < -0.8) {
+            } else if (swipeNormal.x < -0.8) {
                 this.handleMove(0, -1);
             }
             if (swipeNormal.y > 0.8) {
                 this.handleMove(1, 0);
-            }
-            if (swipeNormal.y < -0.8) {
+            } else if (swipeNormal.y < -0.8) {
                 this.handleMove(-1, 0);
             }
         }
@@ -118,26 +113,26 @@ class PlayGame extends GameManager {
         }
     }
 
-    handleMove(deltaRow, deltaCol) {
+    handleMove(rowOffset, colOffset) {
         this.canMove = false;
         let somethingMoved = false;
         this.movingTiles = 0;
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
-                let col = deltaCol == 1 ? 4 - 1 - j : j;
-                let row = deltaRow == 1 ? 4 - 1 - i : i;
+                let col = colOffset == 1 ? 4 - 1 - j : j;
+                let row = rowOffset == 1 ? 4 - 1 - i : i;
                 let tileValue = this.fieldArray[row][col].tileValue;
                 if (tileValue == 0) continue;
 
-                let colSteps = deltaCol;
-                let rowSteps = deltaRow;
+                let colSteps = colOffset;
+                let rowSteps = rowOffset;
                 while (
                     this.isInsideBoard(row + rowSteps, col + colSteps) &&
                     this.fieldArray[row + rowSteps][col + colSteps].tileValue ==
                         0
                 ) {
-                    colSteps += deltaCol;
-                    rowSteps += deltaRow;
+                    colSteps += colOffset;
+                    rowSteps += rowOffset;
                 }
 
                 // if change number
@@ -163,8 +158,8 @@ class PlayGame extends GameManager {
                 }
                 // if not change number
                 else {
-                    colSteps -= deltaCol;
-                    rowSteps -= deltaRow;
+                    colSteps -= colOffset;
+                    rowSteps -= rowOffset;
                     if (colSteps == 0 && rowSteps == 0) continue;
 
                     this.fieldArray[row + rowSteps][col + colSteps].tileValue =
@@ -267,10 +262,7 @@ class PlayGame extends GameManager {
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 if (this.fieldArray[i][j].tileValue == 0) {
-                    emptyTiles.push({
-                        row: i,
-                        col: j,
-                    });
+                    emptyTiles.push({ row: i, col: j });
                 }
             }
         }
@@ -285,19 +277,14 @@ class PlayGame extends GameManager {
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 for (let direction = 0; direction < 4; direction++) {
-                    let neighbor;
                     let vector = this.getVector(direction);
                     let x = i + vector.x;
                     let y = i + vector.y;
-                    if (x < 4 && x >= 0 && y < 4 && y >= 0) {
-                        neighbor = this.fieldArray[i + vector.x][j + vector.y];
-                    }
-                    if (
-                        neighbor &&
-                        neighbor.tileValue === this.fieldArray[i][j].tileValue
-                    ) {
-                        return true;
-                    }
+                    if (!(x < 4 && x >= 0 && y < 4 && y >= 0)) continue;
+
+                    let neighbor = this.fieldArray[i + vector.x][j + vector.y];
+                    let curValue = this.fieldArray[i][j].tileValue;
+                    if (neighbor.tileValue === curValue) return true;
                 }
             }
         }
@@ -320,18 +307,18 @@ class PlayGame extends GameManager {
 
     update() {
         this.scoreText.setText(`${this.score}`);
-        if (this.score >= 10) {
-            this.scoreText.x = 120;
-        }
-        if (this.score >= 100) {
-            this.scoreText.x = 100;
-        }
+
         if (this.score >= 1000) {
             this.scoreText.x = 70;
+        } else if (this.score >= 100) {
+            this.scoreText.x = 100;
+        } else if (this.score >= 10) {
+            this.scoreText.x = 120;
         }
+
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
-                if (this.fieldArray[i][j].tileValue == 11) {
+                if (this.fieldArray[i][j].tileValue === 11) {
                     this.scene.start("EndGame");
                 }
             }
@@ -343,4 +330,3 @@ class PlayGame extends GameManager {
         }
     }
 }
-export { PlayGame };

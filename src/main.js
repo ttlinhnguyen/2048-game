@@ -1,7 +1,7 @@
 import { gameOptions } from "./commonSettings";
 import Preloader from "./scenes/Preloader";
 import StartGame from "./scenes/StartGame";
-import { PlayGame } from "./scenes/PlayGame";
+import PlayGame from "./scenes/PlayGame";
 import EndGame from "./scenes/EndGame";
 import { CANVAS, Game } from "phaser";
 var game;

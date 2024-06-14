@@ -1,6 +1,6 @@
 import { gameOptions } from "../commonSettings";
 import highestScores from "../highestScore";
-import { score } from "./PlayGame";
+import score from "../score";
 import { Scene } from "phaser";
 
 export default class EndGame extends Scene {

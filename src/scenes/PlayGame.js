@@ -154,8 +154,8 @@ class PlayGame extends GameManager {
                     this.fieldArray[row][col].tileValue = 0;
                     this.moveTile(
                         this.fieldArray[row][col],
-                        row + rowSteps,
-                        col + colSteps,
+                        newRows,
+                        newCols,
                         Math.abs(rowSteps + colSteps),
                         true
                     );
@@ -163,22 +163,21 @@ class PlayGame extends GameManager {
                 }
                 // if not change number
                 else {
-                    colSteps = colSteps - deltaCol;
-                    rowSteps = rowSteps - deltaRow;
-                    if (colSteps != 0 || rowSteps != 0) {
-                        this.fieldArray[row + rowSteps][
-                            col + colSteps
-                        ].tileValue = tileValue;
-                        this.fieldArray[row][col].tileValue = 0;
-                        this.moveTile(
-                            this.fieldArray[row][col],
-                            row + rowSteps,
-                            col + colSteps,
-                            Math.abs(rowSteps + colSteps),
-                            false
-                        );
-                        somethingMoved = true;
-                    }
+                    colSteps -= deltaCol;
+                    rowSteps -= deltaRow;
+                    if (colSteps == 0 && rowSteps == 0) continue;
+
+                    this.fieldArray[row + rowSteps][col + colSteps].tileValue =
+                        tileValue;
+                    this.fieldArray[row][col].tileValue = 0;
+                    this.moveTile(
+                        this.fieldArray[row][col],
+                        row + rowSteps,
+                        col + colSteps,
+                        Math.abs(rowSteps + colSteps),
+                        false
+                    );
+                    somethingMoved = true;
                 }
             }
         }

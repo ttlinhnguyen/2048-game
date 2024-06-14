@@ -1,12 +1,13 @@
 import { gameOptions } from "../commonSettings.js";
-import { Scene, Class } from "phaser";
+import { Scene } from "phaser";
 
-var StartGame = new Class({
-    Extends: Scene,
-    initialize: function startGame() {
+export default class StartGame extends Scene {
+    constructor() {
+        super();
         Scene.call(this, { key: "StartGame" });
-    },
-    create: function () {
+    }
+
+    create() {
         this.music = this.sound.add("main_audio", { loop: true });
         this.music.play();
         this.add.image(450, 530, "startbg");
@@ -31,6 +32,5 @@ var StartGame = new Class({
             },
             this
         );
-    },
-});
-export default StartGame;
+    }
+}

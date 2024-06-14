@@ -1,15 +1,16 @@
 import { gameOptions } from "../commonSettings";
 import highestScores from "../highestScore";
-import { Scene, Class, Geom, Utils } from "phaser";
+import { Scene, Geom, Utils } from "phaser";
 
 var musicStatus = true;
 var score = 0;
-var PlayGame = new Class({
-    Extends: Scene,
-    initialize: function playGame() {
+class PlayGame extends Scene {
+    constructor() {
+        super();
         Scene.call(this, { key: "PlayGame" });
-    },
-    create: function () {
+    }
+
+    create() {
         this.add.image(450, 990, "nav");
         this.add.image(170, 990, "score");
         this.musicOn = this.add.image(500, 990, "musicon").setInteractive();
@@ -146,9 +147,9 @@ var PlayGame = new Class({
         this.canMove = false;
         this.addTwo();
         this.addTwo();
-    },
+    }
 
-    endSwipe: function (e) {
+    endSwipe(e) {
         var swipeTime = e.upTime - e.downTime;
         var swipe = new Geom.Point(e.upX - e.downX, e.upY - e.downY);
         var swipeMagnitude = Geom.Point.GetMagnitude(swipe);
@@ -174,9 +175,9 @@ var PlayGame = new Class({
                 this.handleMove(-1, 0);
             }
         }
-    },
+    }
 
-    addTwo: function () {
+    addTwo() {
         var emptyTiles = this.emptyCells();
         var chosenTile = Utils.Array.GetRandom(emptyTiles);
         this.fieldArray[chosenTile.row][chosenTile.col].tileValue = 1;
@@ -194,9 +195,9 @@ var PlayGame = new Class({
                 tween.parent.scene.canMove = true;
             },
         });
-    },
+    }
 
-    handleKey: function (e) {
+    handleKey(e) {
         if (this.canMove) {
             switch (e.code) {
                 case "KeyA":
@@ -219,9 +220,9 @@ var PlayGame = new Class({
                     this.scene.start("EndGame");
             }
         }
-    },
+    }
 
-    handleMove: function (deltaRow, deltaCol) {
+    handleMove(deltaRow, deltaCol) {
         this.canMove = false;
         var somethingMoved = false;
         this.movingTiles = 0;
@@ -303,9 +304,9 @@ var PlayGame = new Class({
         if (!somethingMoved) {
             this.canMove = true;
         }
-    },
+    }
 
-    moveTile: function (tile, row, col, distance, changeNumber) {
+    moveTile(tile, row, col, distance, changeNumber) {
         this.movingTiles++;
         this.tweens.add({
             targets: [tile.tileSprite],
@@ -323,8 +324,9 @@ var PlayGame = new Class({
                 }
             },
         });
-    },
-    transformTile: function (tile, row, col) {
+    }
+
+    transformTile(tile, row, col) {
         this.movingTiles++;
         score++;
         this.plop.play();
@@ -344,8 +346,9 @@ var PlayGame = new Class({
                 }
             },
         });
-    },
-    resetTiles: function () {
+    }
+
+    resetTiles() {
         var tile;
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
@@ -365,18 +368,21 @@ var PlayGame = new Class({
                 }
             }
         }
-    },
-    isInsideBoard: function (row, col) {
+    }
+
+    isInsideBoard(row, col) {
         return row >= 0 && col >= 0 && row < 4 && col < 4;
-    },
-    tileDestination: function (pos) {
+    }
+
+    tileDestination(pos) {
         return (
             pos * (gameOptions.tileSize + gameOptions.tileSpacing) +
             gameOptions.tileSize / 2 +
             gameOptions.tileSpacing
         );
-    },
-    emptyCells: function () {
+    }
+
+    emptyCells() {
         var emptyTiles = [];
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
@@ -389,11 +395,13 @@ var PlayGame = new Class({
             }
         }
         return emptyTiles;
-    },
-    cellAvailable: function () {
+    }
+
+    cellAvailable() {
         return !!this.emptyCells().length;
-    },
-    tileMatchesAvailable: function () {
+    }
+
+    tileMatchesAvailable() {
         // var tile;
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
@@ -418,8 +426,9 @@ var PlayGame = new Class({
             }
         }
         return false;
-    },
-    getVector: function (direction) {
+    }
+
+    getVector(direction) {
         var map = {
             0: { x: 0, y: -1 }, //Up
             1: { x: 1, y: 0 }, //Right
@@ -427,12 +436,12 @@ var PlayGame = new Class({
             3: { x: -1, y: 0 }, //Left
         };
         return map[direction];
-    },
-    movesAvailable: function () {
-        // return this.cellAvailable();
+    }
 
+    movesAvailable() {
         return this.cellAvailable() || this.tileMatchesAvailable();
-    },
+    }
+
     update() {
         this.scoreText.setText(`${score}`);
         if (score >= 10) {
@@ -452,11 +461,11 @@ var PlayGame = new Class({
                 }
             }
         }
+        
         //Game over
         if (!this.movesAvailable()) {
             this.scene.start("EndGame");
-            // this.music.stop()
         }
-    },
-});
+    }
+}
 export { score, PlayGame };
